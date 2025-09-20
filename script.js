@@ -1,6 +1,6 @@
-// Craet board function
-function createBoard(){
-    let images = [
+// Factory function for memory game
+function MemoryGame(gridId, scoreId, clickcountId){
+     let images = [
         {
             name: "butterfly",
             src:"Memory_game_images/butterfly.png"
@@ -25,64 +25,42 @@ function createBoard(){
             name: "forest",
             src:"Memory_game_images/forest.png"
         },
-        {
-            name: "butterfly",
-            src:"Memory_game_images/butterfly.png"
-        },
-        {
-            name: "trutle",
-            src:"Memory_game_images/trutle.png"
-        },
-        {
-            name: "dragon",
-            src:"Memory_game_images/dragon.png"
-        },
-        {
-            name: "star",
-            src:"Memory_game_images/star.png"
-        },
-        {
-            name: "snowleapoard",
-            src:"Memory_game_images/snowleapoard.png"
-        },
-        {
-            name: "forest",
-            src:"Memory_game_images/forest.png"
-        },
-
+    
     ]
 
-    // Sort array randomly
+    const cards = [...images, ...images]
+
     let randomImages = images.sort(() => Math.random() - 0.5)
 
     let clickedCards = []
     let clickedIds = []
     let clickElement = []
 
-    let socorehold = document.getElementById("score")
     let score = 0
+    let clickCount = 0
 
-    let clickCountHolder = document.getElementById("clickCount")
-    let clickCount = 0;
-    // Grab the grid and create blank display
-    let grid = document.getElementById("grid")
-    for(let i = 0; i < 12; i++){
-        let item = document.createElement("img")
-        item.setAttribute("src","Memory_game_images/cover.png")
-        item.setAttribute("data-item",i)
-        item.addEventListener("click",flipCard)
-        clickElement.push(item)
-        grid.append(item)
+    const grid = document.getElementById(gridId)
+    const scoreHolder = document.getElementById(scoreId)
+    const clickCountHolder = document.getElementById(clickcountId)
+
+    // private function
+    function initBoard(){
+            for(let i = 0; i < cards.length; i++){
+            let item = document.createElement("img")
+            item.setAttribute("src","Memory_game_images/cover.png")
+            item.setAttribute("data-item",i)
+            item.addEventListener("click",flipCard)
+            clickElement.push(item)
+            grid.append(item)
+        }
     }
 
-    // Show the score
 
-
-    //flip the card when user click
+    // Flip card function
     function flipCard(){
         let cardNumber = this.getAttribute("data-item")
-        this.setAttribute("src",randomImages[cardNumber].src)
-        clickedCards.push(randomImages[cardNumber].name)
+        this.setAttribute("src",cards[cardNumber].src)
+        clickedCards.push(cards[cardNumber].name)
         clickedIds.push(cardNumber)
 
         // Update the click cout
@@ -95,43 +73,46 @@ function createBoard(){
         }
     }
 
-    // Check match function
     function checkMatch(){
-
-    let cards = document.querySelectorAll("img")
-
-    const optionOneId = clickedIds[0];
-    const optionTwoId = clickedIds[1];
-
-    if(clickedCards.length === 2){
-
+        const[firstId, secondId] = clickedIds;
         if(clickedCards[0] === clickedCards[1]){
             console.log("It is a mactch")
-             clickElement[optionOneId].setAttribute("src","Memory_game_images/blankImages.jpg")
-             clickElement[optionTwoId].setAttribute("src","Memory_game_images/blankImages.jpg")
+             clickElement[firstId].setAttribute("src","Memory_game_images/blankImages.jpg")
+             clickElement[secondId].setAttribute("src","Memory_game_images/blankImages.jpg")
              score++;
         } else {
             console.log("Not a mcuh, flip that back over")
-            clickElement[optionOneId].setAttribute("src","Memory_game_images/cover.png")
-            clickElement[optionTwoId].setAttribute("src","Memory_game_images/cover.png")
+            clickElement[firstId].setAttribute("src","Memory_game_images/cover.png")
+            clickElement[secondId].setAttribute("src","Memory_game_images/cover.png")
         }
         
-        socorehold.textContent = score
+        scoreHolder.textContent = score
 
         // Reset for the next turn
         clickedCards = [];
         clickedIds = [];
+
     }
 
-    console.log(cards[optionOneId])
-    console.log(cards[optionTwoId])
-    console.log(cards)
+    return{
+        init: initBoard,
+        getScore: () => score,
+        getClicks: () => clickCount,
+        reset: () => {
+            grid.innerHTML = "";
+            clickedCards = [];
+            clickedIds = [];
+            clickElement = [];
+            score = 0;
+            clickCount = 0;
+            scoreHolder.textContent = score;
+            clickCountHolder.textContent = clickCount;
+            init();
+        }
+    }
+
 }
 
-        
-}
 
-    
-
-
-console.log(createBoard())
+const game = MemoryGame("grid", "score", "clickCount")
+game.init();
